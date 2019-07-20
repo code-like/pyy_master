@@ -1,2 +1,3 @@
 # pyy_master
-hard work
+def spring():
+  print "I like English!" 
