@@ -23,3 +23,29 @@
  validate_password.check_user_name 用户名检查，用户名和密码不能相同，我们也把它关掉
  输入：set global validate_password.check_user_name=off;
  查看sql临时密码： grep "A temporary password" /var/log/mysqld.log
+7.更改root用户密码
+ 输入：use mysql;
+ 查看当前用户：select user,host from user;
+ +------------------+-----------+
+ | user             | host      |
+ +------------------+-----------+
+ | mysql.infoschema | localhost |
+ | mysql.session    | localhost |
+ | mysql.sys        | localhost |
+ | root             | localhost |
+ +------------------+-----------+
+ 4 rows in set (0.04 sec)
+
+ 更改root用户密码：ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '12345';
+ 直接更改当前用户名密码：SET PASSWORD = ‘12345’；
+8.忘记密码
+ 编辑 /etc/my.cnf 加入 skip-grant-tables
+ 重启mysqld
+ 输入mysql进入免密模式
+ update user set password=password("你的新密码") where user="root";
+ flush privileges;
+ quit
+ 删除/etc/my.cnf文件中的skip-grant-tables 再次重启mysqld生效
+9.mysql 基本操作
+ mysql -u root -p  
+ password:12345 enter mysql mode
