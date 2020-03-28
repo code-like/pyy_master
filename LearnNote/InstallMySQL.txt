@@ -1,0 +1,25 @@
+1.centos mysql 安装：
+ 先更新镜像源，选用aliyun
+ 备份yum源文件： mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
+ 下载aliyun yum源配置：wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+ 生成缓存： yum makecache
+ 更新yum （可不进行）：yum -y update
+2.清除原先的mysql:
+ 查看是否安装： rpm -qa | grep -i mysql
+ 删除旧安装: yum -y remove mysql*    yum -y remove MySQL-*  
+ find / -name mysql           rm -rf /etc/my.cnf		rm -rf /root/.mysql_sercret
+3.配置并安装mysql8.0
+ sudo rpm -Uvh https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
+ sudo yum --enablerepo=mysql80-community install mysql-community-server
+4.启动服务
+ sudo service mysqld start
+5.查看运行状态
+ sudo service mysqld start
+6.设置密码
+ validate_password.length 是密码的最小长度，默认是8，我们把它改成6
+ 输入：set global validate_password.length=6;
+ validate_password.policy 验证密码的复杂程度，我们把它改成0
+ 输入：set global validate_password.policy=0;
+ validate_password.check_user_name 用户名检查，用户名和密码不能相同，我们也把它关掉
+ 输入：set global validate_password.check_user_name=off;
+ 查看sql临时密码： grep "A temporary password" /var/log/mysqld.log
