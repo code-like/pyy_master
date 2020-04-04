@@ -1,0 +1,44 @@
+1.创建数据库
+	create database xxxx character set gbk;
+2.查看数据库
+	show databases;
+3.进入数据库
+	use xxxx;
+4.删除数据库
+	drop database xxxx;
+5.创建表
+	use xxxx(数据库名)；
+	drop table if exists `xxx`;
+	create table `xxx` (
+		`key_id` int(100)/varchar(32/20)/tinyint(32) (unsigned) not null (auto_increment) (primary key) default '' comment '....',
+		`create_time` timestamp(6) not null default current_timestamp(6) <on update current_timestamp(6)>,
+		unique index idx_user_mobile(`mobile`)
+	)
+	engine = innodb default charset=utf8
+	comment='用户表信息';
+6.选取表内容
+	select s.id from xxx s where id=x // id in (1,100) and id not in (50);
+	select * from users where id = 3 limit 1;
+	select mobile from xxx;
+7.更新表
+	update `xxx` set title='标题' where id=1;
+8.插入数据
+	直接插入：
+	insert into `xxx` (列1，列2) values ('值1','值2')
+	源表插入新表：
+	insert into 'new_table' (id,mobile) select s.user_id, s.user_mobile from source_table s where s.id=1;
+	插入一条数据，已存在就更新：
+	insert into `xxx` (`rol1`,`rol2`) values ('value1','value2') on duplicate key update `rol1`=values(`rol1`), `rol2`=values(`rol2`);
+9.删除表
+	清空表数据
+	delete from table_name; // delete * from table_name;
+	清除表中某子段
+	delete from table_name where mobile='sansung';
+	delete from table_name where id in (2,5);
+10.where
+	select * from table_name where id>5;
+11.and or
+	and : 并列
+	or : 选择
+
+
