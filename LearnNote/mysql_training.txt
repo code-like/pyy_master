@@ -40,5 +40,97 @@
 11.and or
 	and : 并列
 	or : 选择
+12.排序(默认升序)
+	select rol1,rol2 from xxx order by rol1;
+13.降序
+	select rol1,rol2 from xxx order by rol1 desc;
+14.顺序
+	select rol1,rol2 from xxx order by rol1 desc , rol2 asc;
+15.in 
+	select * from xxx where mobile in ('sansung','iphone');
+16.not
+	select id, mobile where not id = 1 order by mobile;
+17.UNION 交集（去从）
+	select name form china_emplyees union select name from USA_emplyees;
+	select 'product' as type ,count(*) as count from `product1` union select 'product' as type , count(*) as count from `product2` order by count;
+	select r1.name ,r2.mobile from table1 as r1 inner join table2 as r2 on r1.id = r2.user_id
+18.join
+	join:表中至少一个匹配，返回行
+	inner join:表中至少一个匹配,inner join 关键字返回行
+	left join:即使右表中无匹配，也从左表中返回所有行
+	right join:即使左表中无匹配，也从右表中返回所有行
+	select table1.Lastname , table1.firstname, table2.passwd from table1 inner join table2 on table1.id = table2.id order by table1.Lastname;
+mysql 函数：
+1.计数
+	select count (Lastname) from table1 where Lastname is not null;
+	select count(1) as totals from table1;
+	select user_id ,count(*) as totals from table1 group by user_id;
+2.最大值
+	select max(prices) as largestprice from table1;
+3.触发器
+	delimiter $
+	create trigger set_userdate before insert 
+	on `message`
+	for each row
+	begin
+		set @statu = new.statu;
+		if @statu = 0 then
+			update `user_accounts` set status=1 where openid=new.openid;
+		end if;
+	end
+	$
+	delimiter;
+4.索引
+	直接创建
+	create index index_name on user(title);
+	修改表结构创建
+	alter table table1 add index index_name on (column(length));
+	给表1的name字段添加普通索引
+	alter table table1 add index index_name (name)
+	创建表的同时创建索引
+	create table `user_table` (
+		`id` int(11) not null auto_increment primary key ,
+		`title` char(64) character set utf8 collate utf8_general_cli not null ,
+		`content` text character set utf8 collate utf8_general_cli null,
+		`time` int(10) not null default '',
+		index index_name (title(length))
+		)
+	删除索引
+	drop index index_name on table;
+5.主键索引
+	alter table table1 add primary key (id);
+6.唯一索引
+	alter table table1 unique (id);
+7.全文索引
+	alter table table1 add fulltext (firstname);
+8.添加多列索引
+	alter table table1 add index index_name (name(10),sex.age)
+9.索引不包含null值的列
+10.表的修改
+	alter table table1 add address char(64);
+	alter table table1 add birthday date after age;
+	alter table table1 add column `name` varchar(5) not null default "" after `user_id`;
+11.列的修改
+	修改列名
+	alter table table1 change telphone tel char(13) default "-";
+	修改列数据类型
+	alter table table1 change name name char(32) not null;
+	修改列说明
+	alter table table1 change name name char(32) comment '修改说明'；
+	修改列属性
+	alter table table1 modify `weeks` varchar(64) not null default '' comment '开放时间 周一到周日：0-6'；
+	修改列的字符串类型并保证不能为空
+	alter table table1 modify rolumn `id` varchar(50) not null;
+12.删除列
+	alter table table1 drop weeks;
+13.重命名表
+	alter table table1 rename TABLE1;
+14.清空表数据
+	可恢复：delete from table1;
+	不可恢复：truncate from table1;
+15.删除整张表
+	drop table table1;
+16.删除数据库
+	drop database test1;
 
-
+	
