@@ -1,0 +1,118 @@
+什么是kubernetes?
+kubernetes是一个容器编排平台，负责应用部署，弹性及管理。相对于一艘管理集装箱的轮船。
+
+kubernetes的核心功能？
+调度 
+容器自动化恢复 
+应用的自动发布和回滚
+对job类型批量执行
+水平伸缩
+
+什么是调度？
+观察被调度的容器的大小，如需要的cpu和内存，并负责把容器放置到空闲的节点上。
+
+什么是自动修复？
+提供节点健康检查的功能，宿主机或者软件出现故障时，把容器自动迁移到健康的宿主机上，完成集群内容器的一个自动恢复。
+
+什么是水平伸缩？
+业务负载检测能力，监测业务上所承担的负载，CPU利用率过高，或响应时间过长，对这个业务进行一次扩容，提高响应时间。
+
+kubernetes如何架构？
+二层架构（SC架构），master主管控节点，与node连接。
+user操作指令--->master下发指令---->node执行
+
+master如何架构？
+              UI/CLI
+                |
+------------------------------------
+master                              |    API server:kubernetes各个组件的消息传递
+                                    |    Controller:管理集群状态，如容器自动修复和扩容（可热备）
+API server  Controller Scheduler    |    Scheduler:调度，给容器挑位置
+                                    |    etcd:分布式存储系统，保证master高可用性
+------------------------------------|
+             etcd                   |
+------------------------------------
+    /           |           \
+node          node         node
+
+什么是node？
+真正运行业务负载的节点，可运行一个或多个容器，真正去运行这些 Pod 的组件叫做 kubelet，
+它通过 API Server 接收到所需要 Pod 运行的状态，提交到Container Runtime组件中。
+----------------------------------------
+node                                    |    
+                                        |    
+    pod            pod         pod      |    
+                                        |     
+----------------------------------------|
+             kubelet                    |
+----------------------------------------|
+Container  Storage  Network  kube-prxy  |
+Runtime     Plugin   Plugin             |
+----------------------------------------
+
+pods------>API server--watch----> Scheduler----->API Server------>kubelet
+              |                                     |               |
+             etcd                                  etcd           Container runtime
+             
+什么是pod?
+Pod 是 Kubernetes 的一个[最小调度]以及资源单元。用户可以通过 Kubernetes 的 Pod API 生产一个 Pod，
+让 Kubernetes 对这个 Pod 进行调度，也就是把它放在某一个 Kubernetes 管理的节点上运行起来。一个Pod 
+简单来说是对[一组容器的抽象]，它里面会包含[一个或多个容器]。
+这些容器可以用 localhost 来进行直接的连接。而 Pod 与 Pod 之间，是互相有 isolation 隔离的。
+
+什么是Volume？
+用来管理 Kubernetes 存储的，是用来声明在 Pod 中的容器可以访问文件目录的，
+一个卷可以被挂载在 Pod 中一个或者多个容器的指定路径下面。
+
+Volume 本身是一个抽象的概念，一个 Volume 可以去支持多种的后端的存储。比如说 Kubernetes 的 Volume 就
+支持了很多存储插件，它可以支持本地的存储，可以支持分布式的存储，比如说像 ceph，GlusterFS ；它也可以支持
+云存储，比如说阿里云上的云盘、AWS 上的云盘、Google 上的云盘等等。
+
+什么是Deployment？
+定义一组 Pod 的副本数目、以及这个 Pod 的版本。
+Pod 这个抽象上更为上层的一个抽象。
+应用的真正的管理
+pod是组成 Deployment 最小的单元
+比如说我可以定义一个 Deployment，这个 Deployment 里面需要两个 Pod，当一个 Pod 失败的时候，控制器就会
+监测到，它重新把 Deployment 中的 Pod 数目从一个恢复到两个，通过再去新生成一个 Pod。通过控制器，我们也会
+帮助完成发布的策略。比如说进行滚动升级，进行重新生成的升级，或者进行版本的回滚。
+
+什么是Service？
+对一个外部用户来讲，提供了多个具体的 Pod 地址，这个用户要不停地去更新 Pod 地址，当这个 Pod 再失败重启之
+后，我们希望有一个抽象，把所有 Pod 的访问能力抽象成一个[第三方的一个 IP 地址]，实现这个的 Kubernetes 的
+抽象就叫 Service。
+实现 Service 有多种方式，Kubernetes 支持 Cluster IP，上面我们讲过的 kuber-proxy 的组网，它也支持
+nodePort、 LoadBalancer 等其他的一些访问的能力。
+
+什么是Namespace？
+集群内部的逻辑隔离的，它包括鉴权、资源管理等
+Pod、Deployment、Service 都属于一个 Namespace
+同一个 Namespace 中的资源需要命名的唯一性，不同的 Namespace 中的资源可以重名。
+
+Kubernetes 的 API?
+HTTP+JSON 组成的
+用户访问的方式是 HTTP，访问的 API 中 content 的内容是 JSON 格式的。
+kubectl 也就是 command tool，Kubernetes UI，或者有时候用 curl三种方式，
+直接与 Kubernetes 进行沟通，都是使用 HTTP + JSON 这种形式。
+提交一个 Pod，或者 get 一个 Pod 的时候，它的 content 内容都是用 JSON 或者是 YAML 表达的
+
+在这个 yaml file 中，对 Pod 资源的描述分为几个部分？
+第一个部分:
+一般来讲会是 API 的 version。
+描述我在操作哪个资源 kind:pod
+Metadata:nginx (Pod 的名字)  label:KeyValuePair(label 是可以被 selector，也就是选择器所查询的)
+                                             （这个描述也是通过 label selector 来进行 select 选取的一组 Pod）
+Spec(Pod 达到的一个预期的状态):它内部需要有哪些 container 被运行；
+                            比如说这里面有一个 nginx 的 container，
+                            它的 image 是什么？它暴露的 port 是什么？
+                            status:正在被调度 or running or terminates(就是被执行完毕了)
+
+
+
+
+
+
+
+
+
+             
