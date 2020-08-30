@@ -1,0 +1,14 @@
+<div>
+  <h3 class="weiget-title">分类</h3>
+  <ul>
+    {% for category in category_list %}
+    <li>
+    <a href="{% url 'blog:category' category.pk %}">
+      {{ category.name }}
+    </a>
+    </li>
+  {% empty %}
+  暂无分类！
+  {% endfor %}
+  </ul>
+</div>
